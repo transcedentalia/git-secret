@@ -6,14 +6,17 @@ function reveal {
   OPTIND=1
   local homedir=""
   local passphrase=""
+  local override=""
 
-  while getopts "hd:p:" opt; do
+  while getopts "hfd:p:" opt; do
     case "$opt" in
       h) _show_manual_for "reveal";;
 
       p) passphrase=$OPTARG;;
 
       d) homedir=$OPTARG;;
+
+      f) override="--yes";;
     esac
   done
 
@@ -34,7 +37,11 @@ function reveal {
     if [[ ! -z "$passphrase" ]]; then
       echo "$passphrase" | $base --batch --yes --no-tty --passphrase-fd 0 -o "$line" "$encrypted_filename"
     else
-      $base -o "$line" "$encrypted_filename"
+      if [[ -z "$override" ]]; then
+        $base -o "$line" "$encrypted_filename"
+      else
+        $base -o "$line" "$override" "$encrypted_filename"
+      fi
     fi
 
     counter=$((counter+1))

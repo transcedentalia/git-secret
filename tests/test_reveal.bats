@@ -81,3 +81,17 @@ function teardown {
   [ "$status" -eq 0 ]
   [ -f "$FILE_TO_HIDE" ]
 }
+
+@test "run 'reveal' with override argument" {
+  cp "$FILE_TO_HIDE" "${FILE_TO_HIDE}2"
+
+  local password=$(test_user_password "$TEST_DEFAULT_USER")
+  run git secret reveal -d "$TEST_GPG_HOMEDIR" -p "$password" -f
+
+  [ "$status" -eq 0 ]
+  [ -f "$FILE_TO_HIDE" ]
+
+  cmp --silent "$FILE_TO_HIDE" "${FILE_TO_HIDE}2"
+
+  rm -f "${FILE_TO_HIDE}2"
+}
